@@ -1,0 +1,80 @@
+# ==========================================================================
+# Click2Action — Apache (.htaccess)
+# URLs limpias, HTTPS, caché, compresión y seguridad.
+# ==========================================================================
+
+Options -Indexes
+DirectoryIndex index.php
+ErrorDocument 404 /404.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Si la web está en una subcarpeta, cambia la siguiente línea, ej: RewriteBase /click2action/
+    RewriteBase /
+
+    # Forzar HTTPS y dominio sin www (descomenta al publicar)
+    # RewriteCond %{HTTPS} off [OR]
+    # RewriteCond %{HTTP_HOST} ^www\. [NC]
+    # RewriteRule ^ https://click2action.com.co%{REQUEST_URI} [L,R=301]
+
+    # Bloquear carpetas internas
+    RewriteRule ^(config|includes|database|admin/includes)(/|$) - [F,L]
+    RewriteRule (^|/)\.(?!well-known) - [F,L]
+
+    # Redirigir /pagina.php → /pagina (evita contenido duplicado)
+    RewriteCond %{THE_REQUEST} \s/+([a-z0-9-]+)\.php[\s?] [NC]
+    RewriteCond %1 !^(enviar|404)$ [NC]
+    RewriteRule ^ /%1 [R=301,L]
+    RewriteRule ^index$ / [R=301,L]
+
+    # Barra final opcional → sin barra
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+    # Sitemap y blog
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+    RewriteRule ^blog/categoria/([a-z0-9-]+)$ blog.php?categoria=$1 [L,QSA]
+    RewriteRule ^blog/([a-z0-9-]+)$ articulo.php?slug=$1 [L,QSA]
+
+    # Redirecciones de la web anterior (WordPress) para conservar posicionamiento
+    RewriteRule ^casos-de-exito$ /clientes [R=301,L]
+    RewriteRule ^(surtipulpas|pizza-americana|autoplus|serenn)$ /clientes [R=301,L]
+
+    # /pagina → pagina.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+    RewriteRule ^([a-z0-9-]+)$ $1.php [L]
+</IfModule>
+
+# Cabeceras de seguridad
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    # Activa HSTS cuando el certificado SSL esté funcionando:
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# Compresión
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml text/xml application/xml
+</IfModule>
+
+# Caché del navegador (los archivos CSS/JS llevan ?v= con la fecha de cambio)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 6 months"
+    ExpiresByType image/png "access plus 6 months"
+    ExpiresByType image/jpeg "access plus 6 months"
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Proteger archivos sensibles
+<FilesMatch "\.(sql|md|log|ini|env)$">
+    Require all denied
+</FilesMatch>

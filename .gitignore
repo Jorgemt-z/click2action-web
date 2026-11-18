@@ -1,0 +1,23 @@
+# Configuración real (credenciales). Usa config/config.example.php como plantilla.
+config/config.php
+
+# Contenido subido desde el panel (fotos del equipo, portadas del blog, logos)
+uploads/*/*
+!uploads/*/.htaccess
+
+# Volcado con datos reales del sitio
+database/click2action-contenido.sql
+
+# Entregables y documentos internos
+*.zip
+GUIA-PUBLICACION-HOSTINGER.md
+PRODUCT.md
+
+# Herramientas locales
+.claude/
+.impeccable/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

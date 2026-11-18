@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /enviar.php
+Disallow: /blog?q=
+
+Sitemap: https://click2action.com.co/sitemap.xml
